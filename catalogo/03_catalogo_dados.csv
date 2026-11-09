@@ -1,0 +1,24 @@
+tabela,atributo,tipo,descricao,dominio,obrigatoriedade,linhagem
+fato_hd_diario,id_tempo,inteiro,FK para dim_tempo,1 a 14,Obrigatório,Derivado de date no ETL
+fato_hd_diario,id_modelo,inteiro,FK para dim_modelo,1 a 55,Obrigatório,Derivado de model no ETL
+fato_hd_diario,serial_number,texto,Número de série único do HD físico,Hash alfanumérico,Obrigatório,Origem: Backblaze (coluna serial_number)
+fato_hd_diario,falhou,booleano,"1 se o HD falhou no dia, 0 caso contrário","{0, 1}",Obrigatório,Origem: Backblaze (coluna failure)
+fato_hd_diario,smart_setores_realocados,numérico,Nº de setores físicos realocados (indicador de defeito),0 a ~10^5,Opcional (NaN comum),SMART 5 raw — Backblaze
+fato_hd_diario,smart_horas_ligado,numérico,Horas acumuladas em operação (idade do HD),0 a ~10^5,Opcional,SMART 9 raw — Backblaze
+fato_hd_diario,smart_erros_nao_corrigiveis,numérico,Contagem de erros não corrigíveis reportados,0 a ~10^3,Opcional (muitos NaN),SMART 187 raw — Backblaze
+fato_hd_diario,smart_timeout_comandos,numérico,Contagem de comandos que estouraram timeout,0 a ~10^3,Opcional,SMART 188 raw — Backblaze
+fato_hd_diario,smart_temperatura_c,numérico,Temperatura interna em °C,15 a 60,Opcional,SMART 194 raw — Backblaze
+fato_hd_diario,smart_setores_pendentes,numérico,Setores aguardando realocação,0 a ~10^3,Opcional,SMART 197 raw — Backblaze
+fato_hd_diario,smart_setores_incorrigiveis,numérico,Setores com erro incorrigível em modo offline,0 a ~10^3,Opcional,SMART 198 raw — Backblaze
+dim_modelo,id_modelo,inteiro,PK — identificador sequencial do modelo,1 a 55,Obrigatório,Gerado no ETL
+dim_modelo,model,texto,Nome comercial do modelo de HD,Lista fechada de 55 valores,Obrigatório,Origem: Backblaze (coluna model)
+dim_modelo,capacity_bytes,inteiro,Capacidade nominal em bytes,~160 GB a 8 TB,Obrigatório,Origem: Backblaze (coluna capacity_bytes)
+dim_modelo,capacity_TB,numérico,Capacidade nominal em TB (derivado),"0,16 a 8,00",Obrigatório,Derivado: capacity_bytes / 1e12
+dim_modelo,faixa_capacidade,categórico,Agrupamento em faixas comerciais,"{PEQUENA, MEDIA, GRANDE, ENTERPRISE}",Obrigatório,Derivado no ETL a partir de capacity_TB
+dim_modelo,fabricante,categórico,Fabricante extraído do nome do modelo,"{HGST, HITACHI, SEAGATE, WESTERN DIGITAL, TOSHIBA, OUTRO}",Obrigatório,Derivado no ETL a partir de model
+dim_tempo,id_tempo,inteiro,PK — identificador sequencial do dia,1 a 14,Obrigatório,Gerado no ETL
+dim_tempo,date,data,Data da observação,2017-01-01 a 2017-01-14,Obrigatório,Origem: Backblaze (coluna date)
+dim_tempo,dia,inteiro,Dia do mês,1 a 14,Obrigatório,Derivado de date
+dim_tempo,mes,inteiro,Mês,1,Obrigatório,Derivado de date
+dim_tempo,ano,inteiro,Ano,2017,Obrigatório,Derivado de date
+dim_tempo,dia_semana,texto,Nome do dia da semana em inglês,Monday a Sunday,Obrigatório,Derivado de date
